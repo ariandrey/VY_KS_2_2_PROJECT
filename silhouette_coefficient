@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define N 10
+#define K 2
+
+void assign_points_to_clusters(double points[][2], double cluster_centers[][2], int cluster_assignment_indices[])
+/*''assignPointsToClusters''fonksiyonu her noktanın en yakın kümesine atanmasını sağlar*/
+{
+    double distances[K];
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < K; j++)
+        {
+            distances[j] = sqrt(pow(points[i][0] - cluster_centers[j][0], 2) + pow(points[i][1] - cluster_centers[j][1], 2));
+        }
+        if (distances[0] < distances[1])
+        {
+            cluster_assignment_indices[i] = 0;
+        }
+        else
+        {
+            cluster_assignment_indices[i] = 1;
+        }
+    }
+}
+
+void update_cluster_centers(double points[][2], double cluster_centers[][2], int cluster_assignment_indices[])
+/*''updateCenters'' her kümenin merkezini güncelleyerek iki kümenin birbirine benzemesini sağlar*/
+{
+    int cluster_sizes[K] = {0};
+    for (int i = 0; i < N; i++)
+    {
+        int cluster_index = cluster_assignment_indices[i];
+        cluster_centers[cluster_index][0] += points[i][0];
+        cluster_centers[cluster_index][1] += points[i][1];
+        cluster_sizes[cluster_index]++;
+    }
+    for (int j = 0; j < K; j++)
+    {
+        cluster_centers[j][0] /= cluster_sizes[j];
+        cluster_centers[j][1] /= cluster_sizes[j];
+    }
+}
+
+int main()
+{
+    double points[N][2] = {{1.0, 1.0}, {1.5, 2.0}, {3.0, 4.0}, {5.0, 7.0}, {3.5, 5.0}, {4.5, 5.0}, {3.5, 4.5}, {4.5, 4.5}, {6.0, 7.0}, {5.5, 6.5}};
+    double cluster_centers[K][2] = {{1.0, 1.0}, {6.0, 7.0}};
+    int cluster_assignment_indices[N] = {0};
+    int iteration = 0;
+    while (iteration < 10)
+/*Bu iki fonksiyonu 10 kez tekrarlar ve iki kümenin son durumlarını elde ederiz*/
+/*Her bir kümenin merkezi yeniden hesaplanır ve bu işlem küme merkezleri hareket etmeyene kadar devam eder*/
+    {
+        assign_points_to_clusters(points, cluster_centers, cluster_assignment_indices);
+        update_cluster_centers(points, cluster_centers, cluster_assignment_indices);
+        iteration++;
+    }
+    printf("Cluster 1 center: (%.2f, %.2f)\n", cluster_centers[0][0], cluster_centers[0][1]);
+    printf("Cluster 2 center: (%.2f, %.2f)\n", cluster_centers[1][0], cluster_centers[1][1]);
+    return 0;
+}
